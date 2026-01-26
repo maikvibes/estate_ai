@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environments
+.venv/
+.env
+.env.*
+
+# Tooling caches
+.pytest_cache/
+.coverage*
+.cache/
+.mypy_cache/
+
+# Editors/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Project data
+.chroma/
+logs/
+
+# Local overrides
+*.local

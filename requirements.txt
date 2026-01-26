@@ -1,0 +1,10 @@
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+aiokafka>=0.10.0
+motor>=3.4.0
+pydantic-settings>=2.2.1
+pydantic>=2.8.0
+google-genai>=0.2.0
+python-dotenv>=1.0.1
+chromadb>=0.5.0
+pytest>=8.3.0
