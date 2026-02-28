@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict
 
-from google import genai
-from google.genai import types as genai_types
+from google.adk import Agent
 
 from app.core.config import get_settings
 
@@ -32,35 +30,21 @@ Schema to return:
 
 
 class ListingReviewer:
-    """Runs a Google GenAI Agent to review listings against business rules."""
+    """Runs a Google ADK Agent to review listings against business rules."""
 
     def __init__(self) -> None:
         self.settings = get_settings()
-        self.client = genai.Client(api_key=self.settings.google_genai_api_key)
         self.agent = self._create_agent()
 
     def _create_agent(self) -> Any:
-        return self.client.agents.create(
+        return Agent(
+            name="listing_reviewer",
             model=self.settings.google_genai_model,
-            display_name="listing-reviewer",
-            instruction=SYSTEM_PROMPT,
+            instructions=SYSTEM_PROMPT,
         )
 
     async def review(self, listing: Dict[str, Any]) -> Dict[str, Any]:
-        # The SDK is sync today; run in a thread to avoid blocking the event loop.
-        return await asyncio.to_thread(self._run_sync, listing)
-
-    def _run_sync(self, listing: Dict[str, Any]) -> Dict[str, Any]:
-        # Prepare structured conversation: include listing JSON in a clear chunk.
-        messages = [
-            genai_types.Content(parts=[genai_types.Part.from_text(json.dumps(listing))])
-        ]
-
-        result = self.client.agents.chat(
-            agent=self.agent.name,
-            messages=messages,
-            response_mime_type="application/json",
-        )
+        result = await self.agent.run(json.dumps(listing))
 
         try:
             parsed = json.loads(getattr(result, "text", "{}"))

@@ -34,7 +34,7 @@ class Settings(BaseSettings):
 
     # Webhook
     listing_review_webhook_url: str = Field(
-        default="https://api.estatecompany.com/listings/review",
+        default="https://api.estate.maik.io.vn/listings/review",
         description="Webhook endpoint for listing review results",
     )
     listing_review_secret: str = Field(default="", description="Shared secret for webhook auth header X-Secret-Key")

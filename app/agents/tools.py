@@ -24,9 +24,9 @@ class ToolRegistry:
         results: list[VectorDocument] = self.vector_store.search(query=query, top_k=top_k)
         return [result.__dict__ for result in results]
 
-    def to_functions(self) -> dict[str, Any]:
-        """Expose callables in a dictionary so ADK can bind them as tools."""
+    def to_functions(self) -> List[Any]:
+        """Expose callables in a list so ADK can bind them as tools."""
 
-        return {
-            "lookup_vector_store": self.lookup_vector_store,
-        }
+        return [
+            self.lookup_vector_store
+        ]

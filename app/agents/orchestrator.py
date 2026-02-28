@@ -1,11 +1,8 @@
-from __future__ import annotations
-
 import logging
 import time
 from typing import Any, Dict
 
-from google import genai
-from google.genai import types as genai_types
+from google.adk import Agent
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.agents.tools import ToolRegistry
@@ -17,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class AgentOrchestrator:
-    """Orchestrates task handling via Google GenAI Agent + tools."""
+    """Orchestrates task handling via Google ADK Agent + tools."""
 
     def __init__(self, db: AsyncIOMotorDatabase, vector_store: VectorStore) -> None:
         self.settings = get_settings()
@@ -25,20 +22,15 @@ class AgentOrchestrator:
         self.vector_store = vector_store
         self.tools = ToolRegistry(vector_store=vector_store)
 
-        self._client = genai.Client(api_key=self.settings.google_genai_api_key)
         self._agent = self._create_agent()
 
     def _create_agent(self) -> Any:
         """Create an Agent with tools attached.
-
-        The GenAI SDK surfaces an `agents.create` helper. We pass in the
-        tool functions so the model can call them during orchestration.
         """
 
-        return self._client.agents.create(
+        return Agent(
+            name="background_agent",
             model=self.settings.google_genai_model,
-            display_name="background-agent",
-            instruction="You are a background analyst. Use tools when helpful and summarize clearly.",
             tools=self.tools.to_functions(),
         )
 
@@ -63,27 +55,16 @@ class AgentOrchestrator:
 
     async def _run_agent(self, user_input: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
         """Execute the agent conversation.
-
-        We offload tool binding to the SDK. Awaiting keeps backpressure aligned with
-        Kafka auto-commit (we only move on once the task is done).
         """
 
         # Provide vector context as a starting hint.
         context = await self.tools.lookup_vector_store(query=user_input)
 
-        # The SDK accepts a list of messages; keep it minimal for scaffold.
-        messages = [
-            genai_types.Content(parts=[genai_types.Part.from_text(user_input)])
-        ]
-
-        result = self._client.agents.chat(
-            agent=self._agent.name,
-            messages=messages,
-            tools=self.tools.to_functions(),
-            tool_config=genai_types.ToolConfig(direct=True),
-            metadata=metadata,
-            system_instruction=f"Context: {context}",
-        )
+        # In google-adk we use agent.run()
+        prompt = f"Context: {context}\nUser Input: {user_input}"
+        
+        # Make the call using the newer SDK
+        result = await self._agent.run(prompt)
 
         # result can be converted to dict for persistence; minimal schema here.
         return {

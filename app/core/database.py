@@ -21,7 +21,12 @@ async def init_db() -> AsyncIOMotorDatabase:
         return _db
 
     settings = get_settings()
-    _client = AsyncIOMotorClient(str(settings.mongodb_uri))
+    _client = AsyncIOMotorClient(
+        str(settings.mongodb_uri),
+        username='mongoadmin',
+        password='bdung'
+    )
+    
     _db = _client[settings.mongodb_db]
 
     # Ensure a couple of useful indexes; keep this lightweight for startup.
