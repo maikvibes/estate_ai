@@ -11,6 +11,9 @@ from app.services.kafka_service import KafkaService
 from app.core.config import get_settings
 from app.services.vector_store import ChromaVectorStore, InMemoryVectorStore
 
+from fastapi.responses import RedirectResponse
+from app.api.routes import router as api_router
+
 logger = logging.getLogger(__name__)
 
 kafka = KafkaService()
@@ -44,7 +47,20 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
-    return FastAPI(lifespan=lifespan)
+    app = FastAPI(
+        title="Estate AI - Orchestrator & API",
+        description="Unified worker and API for real estate background analysis and history CRUD.",
+        version="1.0.0",
+        lifespan=lifespan
+    )
+    
+    app.include_router(api_router, prefix="/api")
+
+    @app.get("/", include_in_schema=False)
+    async def root_redirect():
+        return RedirectResponse(url="/docs")
+
+    return app
 
 
 app = create_app()

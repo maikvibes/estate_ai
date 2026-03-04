@@ -34,3 +34,9 @@ class AgentRun(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
     status: str = Field(default="pending")
     created_at: float | None = None
+
+
+class AgentRunUpdate(BaseModel):
+    status: Optional[str] = None
+    metadata: Optional[dict[str, Any]] = None
+    response: Optional[dict[str, Any]] = None

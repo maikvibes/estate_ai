@@ -1,8 +1,4 @@
-import logging
-from contextlib import asynccontextmanager
-
-from fastapi import FastAPI
-
+from fastapi.responses import RedirectResponse
 from app.api.routes import router as api_router
 from app.core.database import close_db, init_db
 
@@ -20,8 +16,19 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Estate AI", lifespan=lifespan)
+    app = FastAPI(
+        title="Estate AI - API",
+        description="REST API for real estate analysis request and history CRUD.",
+        version="1.0.0",
+        lifespan=lifespan
+    )
+    
     app.include_router(api_router, prefix="/api")
+
+    @app.get("/", include_in_schema=False)
+    async def root_redirect():
+        return RedirectResponse(url="/docs")
+
     return app
 
 
