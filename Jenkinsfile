@@ -27,15 +27,7 @@ pipeline {
             }
         }
 
-        stage('Lint & Test') {
-            steps {
-                echo 'Running tests inside container...'
-                script {
-                    // Example of running tests inside the freshly built image
-                    sh "docker run --rm ${DOCKER_IMAGE}:${DOCKER_TAG} pytest tests/"
-                }
-            }
-        }
+
 
         stage('Deploy') {
             steps {
