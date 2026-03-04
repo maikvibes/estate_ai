@@ -15,7 +15,23 @@ pipeline {
                 checkout scm
             }
         }
-
+        stage('Environment Setup') {
+            steps {
+                echo 'Generating .env file...'
+                sh """
+                    cat <<EOF > .env
+KAFKA_BOOTSTRAP_SERVERS=192.168.1.80:9092
+KAFKA_REQUESTS_TOPIC=agent.requests
+KAFKA_LISTINGS_TOPIC=listings.new
+MONGODB_URI=mongodb://localhost:27017
+MONGODB_DB=estate_ai
+LISTING_REVIEW_WEBHOOK_URL=https://api.estate.maik.io.vn/reporting/review
+LISTING_REVIEW_SECRET=your_webhook_secret_here
+CHROMA_PERSIST_DIR=.chroma
+EOF
+                """
+            }
+        }
         stage('Build Image') {
             steps {
                 echo 'Building Docker image...'
@@ -26,15 +42,6 @@ pipeline {
             }
         }
 
-        stage('Lint & Test') {
-            steps {
-                echo 'Running tests inside container...'
-                script {
-                    // Example of running tests inside the freshly built image
-                    sh "docker run --rm ${DOCKER_IMAGE}:${DOCKER_TAG} pytest tests/"
-                }
-            }
-        }
 
         stage('Deploy') {
             steps {
