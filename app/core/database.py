@@ -30,7 +30,7 @@ async def init_db() -> AsyncIOMotorDatabase:
     _db = _client[settings.mongodb_db]
 
     # Ensure a couple of useful indexes; keep this lightweight for startup.
-    await _db["agent_runs"].create_index("request_id", unique=True)
+    await _db["agent_runs"].create_index("eventId", unique=True)
     await _db["agent_runs"].create_index("status")
     await _db["agent_runs"].create_index("created_at")
 

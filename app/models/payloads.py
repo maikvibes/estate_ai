@@ -1,22 +1,34 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 from pydantic import BaseModel, Field
 
 
-class TaskRequest(BaseModel):
-    input: str = Field(..., description="User input to process")
-    metadata: Optional[dict[str, Any]] = Field(default=None, description="Optional metadata")
+class EventRequest(BaseModel):
+    eventId: str
+    eventType: str
+    eventTimestamp: List[int]
+    listingId: str
+    userId: str
+    title: str
+    description: str
+    category: str
+    images: Optional[List[str]] = None
+    price: Optional[float] = None
+    documentType: Optional[List[str]] = None
+    fileUrl: Optional[List[str]] = None
+    analysisType: str
+    priority: int
 
 
-class TaskResponse(BaseModel):
-    request_id: str
+class EventResponse(BaseModel):
+    eventId: str
     status: str = "accepted"
 
 
 class AgentRun(BaseModel):
-    request_id: str
+    eventId: str
     input: str
     response: dict[str, Any] | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
