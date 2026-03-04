@@ -9,8 +9,6 @@ services:
       - .env
     depends_on:
       - mongodb
-      - kafka
-
   mongodb:
     image: mongo:latest
     ports:
