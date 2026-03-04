@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    tools {
+        dockerTool 'Default'
+    }
     environment {
         // Docker configuration
         DOCKER_IMAGE = 'estate-ai-app'
@@ -35,7 +37,7 @@ pipeline {
                 script {
                     // Ensure environment variables are loaded from .env or Jenkins secrets
                     // docker-compose automatically picks up .env in the same dir
-                    sh "docker-compose up -d --build"
+                    sh "docker compose up -d --build"
                 }
             }
         }
